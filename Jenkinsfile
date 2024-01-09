@@ -10,9 +10,12 @@ pipeline {
         GITWEBADD = 'https://github.com/sexyguyjin/sb_code.git'
         GITSSHADD = 'git@github.com:sexyguyjin/sb_code.git'
         GITCREDENTIAL = 'git_cre'      
+        DOCKERHUB = 'sexyguyjin/spring'
+        DOCKERHUBCREDENTIAL = 'docker_cre'
+
     }
         
-    stages {
+   stages {
         stage('Checkout Github') {
             steps {
                 checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [],
@@ -35,15 +38,9 @@ pipeline {
         stage('code build') {
             steps {
                 sh "mvn clean package"
+                
             }
         }
-        stage('image build') {
-            steps {
-                sh "docker build -t sexyguyjin/spring:1.0 ."
-            }
-        }
-    }
-}
         stage('image build') {
             steps {
                 sh "docker build -t ${DOCKERHUB}:${currentBuild.number} ."
@@ -72,6 +69,7 @@ pipeline {
                     echo 'docker image push success'
                     sh "docker image rm -f ${DOCKERHUB}:${currentBuild.number}"
                     sh "docker image rm -f ${DOCKERHUB}:latest"
+
                 }
             }
         }
