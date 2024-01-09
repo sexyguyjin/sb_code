@@ -7,11 +7,11 @@ pipeline {
     environment {
         GITNAME = 'sexyguyjin'            
         GITEMAIL = 'wlsgustmd9706@naver.com' 
-        GITWEBADD = 'https://github.com/sb_code/sb_code.git'
+        GITWEBADD = 'https://github.com/sexyguyjin/sb_code.git'
         GITSSHADD = 'git@github.com:sexyguyjin/spring_deployment.git'
         GITCREDENTIAL = 'git_cre'
         
-        DOCKERHUB = 'oolralra/spring'
+        DOCKERHUB = 'wlsgustmd/spring'
         DOCKERHUBCREDENTIAL = 'docker_cre'
     }
         
