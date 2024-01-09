@@ -44,7 +44,7 @@ pipeline {
         }
     }
 }
-       stage('image build') {
+        stage('image build') {
             steps {
                 sh "docker build -t ${DOCKERHUB}:${currentBuild.number} ."
                 sh "docker build -t ${DOCKERHUB}:latest ."
@@ -72,3 +72,9 @@ pipeline {
                     echo 'docker image push success'
                     sh "docker image rm -f ${DOCKERHUB}:${currentBuild.number}"
                     sh "docker image rm -f ${DOCKERHUB}:latest"
+                }
+            }
+        }
+    }
+}
+
