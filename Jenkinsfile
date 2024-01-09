@@ -10,7 +10,7 @@ pipeline {
         GITWEBADD = 'https://github.com/sexyguyjin/sb_code.git'
         GITSSHADD = 'git@github.com:sexyguyjin/sb_code.git'
         GITCREDENTIAL = 'git_cre'      
-        DOCKERHUB = 'sexyguyjin/spring'
+        DOCKERHUB = 'wlsgustmd/spring'
         DOCKERHUBCREDENTIAL = 'docker_cre'
 
     }
