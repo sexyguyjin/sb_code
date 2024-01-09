@@ -7,15 +7,15 @@ pipeline {
     environment {
         GITNAME = 'sexyguyjin'            
         GITEMAIL = 'wlsgustmd9706@naver.com' 
-        GITWEBADD = 'https://github.com/sexyguyjin/sb_code.git'
-        GITSSHADD = 'git@github.com:sexyguyjin/sb_code.git'
-        GITCREDENTIAL = 'git_cre'      
-        DOCKERHUB = 'wlsgustmd/spring'
+        GITWEBADD = 'https://github.com/sb_code/sb_code.git'
+        GITSSHADD = 'git@github.com:sexyguyjin/spring_deployment.git'
+        GITCREDENTIAL = 'git_cre'
+        
+        DOCKERHUB = 'oolralra/spring'
         DOCKERHUBCREDENTIAL = 'docker_cre'
-
     }
         
-   stages {
+    stages {
         stage('Checkout Github') {
             steps {
                 checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [],
@@ -46,7 +46,7 @@ pipeline {
                 sh "docker build -t ${DOCKERHUB}:${currentBuild.number} ."
                 sh "docker build -t ${DOCKERHUB}:latest ."
                 // currentBuild.number = 젠킨스가 제공하는 빌드넘버 변수
-                // oolralra/spring:1 같은 형태로 빌드가 될것
+                // wlsgustmd/spring:1 같은 형태로 빌드가 될것
             }
         }
         
@@ -55,6 +55,8 @@ pipeline {
                 withDockerRegistry(credentialsId: DOCKERHUBCREDENTIAL, url: '') {
                     sh "docker push ${DOCKERHUB}:${currentBuild.number}"
                     sh "docker push ${DOCKERHUB}:latest"
+                // withDockerRegistry : docker pipeline 플러그인 설치시 사용가능
+                // DOCKERHUBCREDENTIAL= docker_cre 만들어둔 credentials
                 }
             }
             
@@ -69,10 +71,37 @@ pipeline {
                     echo 'docker image push success'
                     sh "docker image rm -f ${DOCKERHUB}:${currentBuild.number}"
                     sh "docker image rm -f ${DOCKERHUB}:latest"
-
                 }
             }
         }
+        stage('k8s manifest file update') {
+            steps {
+                git credentialsId: GITCREDENTIAL,
+                url: GITSSHADD,
+                branch: 'main'
+        
+                // 이미지 태그 변경 후 메인 브랜치에 푸시
+                sh "git config --global user.email ${GITEMAIL}"
+                sh "git config --global user.name ${GITNAME}"
+                sh "sed -i 's@${DOCKERHUB}:.*@${DOCKERHUB}:${currentBuild.number}@g' deployment.yml"
+        
+                sh "git add ."
+                sh "git commit -m 'fix:${DOCKERHUB} ${currentBuild.number} image versioning'"
+                sh "git branch -M main"
+                sh "git remote remove origin"
+                sh "git remote add origin ${GITSSHADD}"
+                sh "git push -u origin main"
+
+            }
+            post {
+                failure {
+                echo 'k8s manifest file update failure'
+                }
+                success {
+                echo 'k8s manifest file update success'  
+                }
+            }
+        }
+
     }
 }
-
